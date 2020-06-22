@@ -22,6 +22,7 @@ def main():
             rects = fip.get_locations(rgb_small_frame)
             landmarks = fip.get_face_landmarks(rgb_small_frame)
             print(zip(rects,landmarks))
+            # TODO: iteration seems not work out
             for i, (rect, landmark) in enumerate(zip(rects, landmarks)):
                 (x, y, w, h) = face_utils.rect_to_bb(rect)  # 返回人脸框的左上角坐标和矩形框的尺寸
                 print(i,rect,landmark)
