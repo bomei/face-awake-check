@@ -6,6 +6,8 @@ import face_recognition
 import logging as syslog
 from bo_log import log, set_log
 from typing import Dict
+import arrow
+from dlib_test import dlib_process_img
 
 set_log(syslog.DEBUG)
 
@@ -115,12 +117,13 @@ known_face_encodings = [each[1] for each in known_face_pairs]
 
 
 def process_rgb_frame(raw_frame, rgb_frame, tick):
-    rects = face_recognition.face_locations(rgb_frame,model='cnn')
+    rects = face_recognition.face_locations(rgb_frame, model='cnn')
     landmarks = face_recognition.face_landmarks(rgb_frame)
     # TODO:
     #  the landmarks are calculated in face_encodings() already, so here is a duplicated statement.
     #  Have to hack the face_encodings function
     face_encodings = face_recognition.face_encodings(rgb_frame)
+    return face_encodings
     for i, (rect, landmark, face_encoding) in enumerate(zip(rects, landmarks, face_encodings)):
         (top, right, bottom, left) = rect  # 返回人脸框的左上角坐标和矩形框的尺寸
         # print(i, rect, landmark)
@@ -128,7 +131,7 @@ def process_rgb_frame(raw_frame, rgb_frame, tick):
         # y *= 4
         # w *= 4
         # h *= 4
-        log.debug('rect locations', top=top, right=right, bottom=bottom, left=left)
+        # log.debug('rect locations', top=top, right=right, bottom=bottom, left=left)
         cv2.rectangle(raw_frame, (left, top), (right, bottom), (0, 255, 0), 2)
 
         match_result = face_recognition.compare_faces(known_face_encodings, face_encoding)
@@ -165,8 +168,14 @@ def process_video(video_capture: cv2.VideoCapture):
 
         if process_this_frame:
             rgb_small_frame = small_frame[:, :, ::-1]
-            small_frame = process_rgb_frame(small_frame, rgb_small_frame, tick)
-            cv2.imshow('Video', small_frame)
+            # small_frame = process_rgb_frame(small_frame, rgb_small_frame, tick)
+            # cv2.imshow('Video', small_frame)
+            t1 = arrow.now()
+            r1 = np.array(process_rgb_frame(small_frame, rgb_small_frame, 0))
+            t2 = arrow.now()
+            r2 = np.array(dlib_process_img(small_frame, rgb_small_frame))
+            t3 = arrow.now()
+            log.debug(delta=(r1 - r2).sum(), fr_time=t2 - t1, dlib_time=t3 - t2)
             process_this_frame = False
             tick += 1
         else:
