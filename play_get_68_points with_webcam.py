@@ -171,11 +171,11 @@ def process_video(video_capture: cv2.VideoCapture):
             # small_frame = process_rgb_frame(small_frame, rgb_small_frame, tick)
             # cv2.imshow('Video', small_frame)
             t1 = arrow.now()
-            r1 = np.array(process_rgb_frame(small_frame, rgb_small_frame, 0))
+            # r1 = np.array(process_rgb_frame(small_frame, rgb_small_frame, 0))
             t2 = arrow.now()
             r2 = np.array(dlib_process_img(small_frame, rgb_small_frame))
             t3 = arrow.now()
-            log.debug(delta=(r1 - r2).sum(), fr_time=t2 - t1, dlib_time=t3 - t2)
+            log.debug( fr_time=t2 - t1, dlib_time=t3 - t2)
             process_this_frame = False
             tick += 1
         else:
